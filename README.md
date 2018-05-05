@@ -1,2 +1,2 @@
 # MI-CSM
-MI for Client Services Management
+MI for Client Services Management.

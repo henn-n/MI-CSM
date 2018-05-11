@@ -1,6 +1,8 @@
+/// General Utils to assist with working with Jira data 
 Class Jira.Utils Extends %RegisteredObject [ ProcedureBlock ]
 {
 
+/// Make a connection to the Jira Server, execute a Jql query and load the results into the Cache Data Model.
 ClassMethod GetJiraIssueData(jira = "", searchproject = "", searchkey = "", username = "", password = "", error, debug = 1) As %Status
 {
  

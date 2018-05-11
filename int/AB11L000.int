@@ -1,0 +1,53 @@
+ROUTINE AB11L000 [Type=INT]
+AB11L000 ;;DATE MANIPULATOR;;;;JUN82;;JP;;;;;;;;;;1;;;;;;;;;;;;1
+ ;;%full_filespec: AB11L000.ML-2:M_library:1 %
+%TPN ;;1~TIM063
+%DEV ;;;1~10 Dec 93
+ ;;
+%SI S %PRG=$P($T(+1)," ",1),%PG2=%PRG D %SI^AB66L000 Q
+%SO S %PG2=$P($T(+1)," ",1) D %SO^AB66L000 Q
+%TOP D %TOP^AB66L000 Q
+%CES D %CES^AB66L000 Q
+%HOME D %HOME^AB66L000 Q
+%CEL D:'$D(%BGJ) %CEL^AB66L000 Q
+MS S %PG2=$P($T(+1)," ",1) D %B03A^AB03L000 Q
+%B11T ;;GET TODAY'S DATE
+ S %DN=+$H G %B11C
+ ;;
+%B11C ;;CONVERT NUMERIC TO ALPHA
+ I $D(^ASW("AB11L000","USER"))#10 G @(^ASW("AB11L000","USER"))
+ K %DA S %A="*",%S=0,%DA="",%DF=2,%DL="" I %DN'?1N.N G %B11Z
+%B11D S %H=%DN>21914+%DN,%LY=%H\1461,%R=%H#1461,%YY=%LY*4+1841+(%R\365),%DZ=%R#365,%N=1
+ I %R=1460&(%LY'=14) S %DZ=365,%YY=%YY-1
+ F %J=31,(%R>1154)&(%LY'=14)+28,31,30,31,30,31,31,30,31,30 Q:%J'<%DZ  S %N=%N+1,%DZ=%DZ-%J
+ I %DZ=0 S %YY=%YY-1,%N=12,%DZ=31
+ S:%DF#2=1 %YY=$E(%YY,3,4) I %DF>20 S %DA=$E(%DZ+100,2,3)_%DL_$E(%N+100,2,3)_%DL_%YY Q:%S  G %B11Z
+ S %DA=$E(%DZ+100,2,3)_%DL_$P("JAN*FEB*MAR*APR*MAY*JUN*JUL*AUG*SEP*OCT*NOV*DEC",%A,%N)_%DL_%YY,%DA(0)=%DZ,%DA(1)=%N,%DA(2)=%YY G %B11Z
+ ;;
+%B11E ;;BUILD NUMERIC & ALPHA DATES
+ S %A="*",%DF=2,%DL="",%DN=0 G %B11Z:'($D(%DA(0))*$D(%DA(1))*$D(%DA(2)))
+ S %N=%DA(0)?1N.N&(%DA(0)<32)&(%DA(1)?1N.N)&(%DA(1)>0)&(%DA(1)<13)&(%DA(2)?4N) G %B11Z:'%N
+ S %DA=$E(%DA(0)+100,2,3)_%DL_$P("JAN*FEB*MAR*APR*MAY*JUN*JUL*AUG*SEP*OCT*NOV*DEC",%A,%DA(1))_%DL_%DA(2)
+ G %B11V
+ ;;
+%B11V ;;CONVERT ALPHA TO NUMERIC
+ ;;
+ ;;TASKMASTER - SPECIAL DATE KEY
+ I +$G(%TASK),%DA="," D %D32A^AD32L002
+ ;;
+ S %A="*",%DF=2,%DN=0,%J="DDMMMYYYY*2N3U4N*",%DL=$P(%J,%A,3),%J=$P(%J,%A,2),%J="S %H=%DA'?"_%J X %J I %H G %B11Z
+ S %N=$E(%DA,3,5),%YY=$E(%DA,6,9)
+ S %DZ=+%DA,%YF=%YY,%YY=%YY#100 F %J=0:1:12 S %DM(%J)=$P("31-28-31-30-31-30-31-31-30-31-30-31","-",%J)
+ S %DM(2)=%DM(2)+'(%YY#4) I %N?3A S %N=$F("JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ",%N)\4
+ S:'$D(%DM(+%N)) %N=1,%DZ=0 I '%DZ!'%N!(%DM(+%N)<%DZ) S %DN=0 G %B11Z
+ S %H=0 F %J=1:1:(%YF-1841) S %H=(%J#4=0)+365+%H
+ F %J=1:1:%N-1 S %H=%H+%DM(%J)
+ S %DN=%H+%DZ S:%DN=21609 %DN=0 S:%DN>21609 %DN=%DN-1 S %DA(0)=+%DA,%DA(1)=%N,%DA(2)=%YF G %B11Z
+ ;;
+%B11F ;;CONVERT NUMERIC TO EXPANDED ALPHA
+ S %DA="",%S=1,%A="*",%DA="",%DF=22,%DL="" D %B11D
+ S %DA=$P("Thursday*Friday*Saturday*Sunday*Monday*Tuesday*Wednesday",%A,%DN#7+1)_" "_+%DZ
+ S %J="th" S:+%DZ#10=1&(%DZ'=11) %J="st" S:+%DZ#10=2&(%DZ'=12) %J="nd" S:+%DZ#10=3&(%DZ'=13) %J="rd"
+ S %DA=%DA_%J_". of "_$P("January*February*March*April*May*June*July*August*September*October*November*December",%A,+%N)_", "_%YY
+ G %B11Z
+%B11Z K %DF,%DL,%DZ,%YY,%J,%DM,%H,%R,%LY,%N,%S,%YF,%A Q

@@ -3,14 +3,17 @@ Class Jira.Utils Extends %RegisteredObject [ ProcedureBlock ]
 {
 
 /// Make a connection to the Jira Server, execute a Jql query and load the results into the Cache Data Model.
-ClassMethod GetJiraIssueData(jira = "", searchproject = "", searchkey = "", username = "", password = "", error, debug = 1) As %Status
+/// 
+/// Example: set sc=##class(Jira.Utils).GetJiraIssueData(,"RRS",,1,100)
+/// 
+ClassMethod GetJiraIssueData(jira = "", searchproject = "RRS", searchkey = "", startid = 801, endid = 873, error = "", debug = 1) As %Status
 {
  
  kill jira,error
  if searchproject="" set searchproject=$get(^JIRA("config","searchproject"))
  if searchkey="" set searchkey=$get(^JIRA("config","searchkey"))
- if username="" set username=$get(^JIRA("config","username"))
- if password="" set password=$get(^JIRA("config","password"))
+ set username=$get(^JIRA("config","username"))
+ set password=$get(^JIRA("config","password"))
  set server=$get(^JIRA("config","server"))
  set sslconfiguration=$get(^JIRA("config","sslconfiguration"))
  set port=$get(^JIRA("config","Port"))
@@ -22,14 +25,13 @@ ClassMethod GetJiraIssueData(jira = "", searchproject = "", searchkey = "", user
  set http.Port=port
  set http.Username=username
  set http.Password=password
- set http.Timeout=120 // 2 min timeout
+ set http.Timeout=240 // 2 min timeout
  kill username,password
  
  set get="/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml"
  //set param("jqlQuery")="project='"_searchproject_"' AND "_$select(searchkey["FPI":"key", 1:"fixVersion")_"='"_searchkey_"'"
  
- set rangestart=101,rangeend=200
- set param("jqlQuery")="project='"_searchproject_"' AND id >= '"_searchproject_"-"_rangestart_"' AND id <= '"_searchproject_"-"_rangeend_"'"
+ set param("jqlQuery")="project='"_searchproject_"' AND id >= '"_searchproject_"-"_startid_"' AND id <= '"_searchproject_"-"_endid_"'"
  
  if $extract(searchkey,1,1)="v" {
   set searchkey2=$extract(searchkey,2,$length(searchkey))

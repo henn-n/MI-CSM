@@ -36,7 +36,7 @@ XData Cube [ XMLNamespace = "http://www.intersystems.com/deepsee" ]
       </level>
     </hierarchy>
   </dimension>
-  <dimension name="CreatedDate" displayName="Created Date" description="Created Date" disabled="false" hasAll="false" allCaption="All CreatedDate" allDisplayName="CreatedDate" sourceProperty="CreatedDate" type="time" calendar="gregorian" iKnowType="entity" hidden="false" showHierarchies="default">
+  <dimension name="Created Date" displayName="Created Date" description="Created Date" disabled="false" hasAll="false" allCaption="All CreatedDate" allDisplayName="CreatedDate" sourceProperty="CreatedDate" type="time" calendar="gregorian" iKnowType="entity" hidden="false" showHierarchies="default">
     <hierarchy name="H1" disabled="false" hidden="false">
       <level name="L1" displayName="Year" description="Year" disabled="false" timeFunction="Year" list="false" useDisplayValue="true" useAsFilter="true" hidden="false">
       </level>
@@ -45,6 +45,18 @@ XData Cube [ XMLNamespace = "http://www.intersystems.com/deepsee" ]
       <level name="L3" displayName="Week" description="Week" disabled="false" timeFunction="WeekYear" list="false" useDisplayValue="true" useAsFilter="true" hidden="false">
       </level>
       <level name="L4" displayName="Day" description="Day" disabled="false" timeFunction="DayMonthYear" list="false" useDisplayValue="true" useAsFilter="true" hidden="false">
+      </level>
+    </hierarchy>
+  </dimension>
+  <dimension name="Resolved Date" displayName="Resolved Date" description="Resolved Date" disabled="false" hasAll="true" allCaption="All Resolved Date" allDisplayName="Resolved Date" sourceProperty="ResolvedDate" type="time" calendar="gregorian" iKnowType="entity" hidden="false" showHierarchies="default">
+    <hierarchy name="H1" disabled="false" hidden="false">
+      <level name="L1" displayName="Year" description="Year" disabled="false" timeFunction="Year" list="false" useDisplayValue="true" useAsFilter="true" hidden="false">
+      </level>
+      <level name="L2" displayName="MonthYear" description="MonthYear" disabled="false" timeFunction="MonthYear" list="false" useDisplayValue="true" useAsFilter="true" hidden="false">
+      </level>
+      <level name="L3" displayName="WeekYear" description="WeekYear" disabled="false" timeFunction="WeekYear" list="false" useDisplayValue="true" useAsFilter="true" hidden="false">
+      </level>
+      <level name="L4" displayName="DayMonthYear" description="DayMonthYear" disabled="false" timeFunction="DayMonthYear" list="false" useDisplayValue="true" useAsFilter="true" hidden="false">
       </level>
     </hierarchy>
   </dimension>

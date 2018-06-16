@@ -1,6 +1,15 @@
 Class Jira.IssueUpdater Extends %RegisteredObject
 {
 
+/// set sc=##class(Jira.IssueUpdater).DeleteAllJiraData()
+ClassMethod DeleteAllJiraData() As %Status
+{
+ do ##class(Jira.JiraProject).%DeleteExtent()
+ do ##class(Jira.Issue).%DeleteExtent()
+ do ##class(Jira.OpenIssue).%DeleteExtent()
+ quit 1
+}
+
 // Property AuditObject As QUASAR.System.Audit.Audit;
 
 ClassMethod DeleteJiraIssue(deleteobj As %Persistent = "") As %Status
@@ -72,17 +81,24 @@ ClassMethod UpdateJiraIssue(newobj As %Persistent = "", ByRef vals, stack As %In
     	if val?4N1"-"2N1"-"2N set val=$ZDATEH(val,3)
     	}
         
-    continue:$property(newobj,propname)=val  //only update changes
+    //continue:$property(newobj,propname)=val  //only update changes
     
-    if propname="Project" {
+    /*if propname="Project" {
     	set val=##class(JiraProject).GetJiraProject(vals("ProjectCode",stack))
     	set val.Description=$get(vals("ProjectDesc",stack)) kill vals("ProjectDesc",stack)
-    	}
+    	}*/
+    
     set $property(newobj,propname)=val       //update the field value
- }
+    }
  
  // Update to Database
  set sc=newobj.%Save()
+ 
+ if $$$ISERR(sc) {
+	 do $system.Status.DecomposeStatus(%objlasterror,.err)
+	 merge ^JIRA("errors",$increment(^JIRA("errors")))=err
+	 merge ^JIRA("errors",^JIRA("errors"),"update_vals")=vals
+ }
  
  // Release lock as early as possible
  //lock -^QOBJ(classname)
@@ -95,8 +111,10 @@ ClassMethod UpdateJiraIssue(newobj As %Persistent = "", ByRef vals, stack As %In
  quit $$$OK
 }
 
+/// Example: set sc=##class(Jira.IssueUpdater).UpdateAllJiraIssuesFromImportFile()
 ClassMethod UpdateAllJiraIssuesFromImportFile() As %Status
 {
+ kill ^JIRA("errors")
  set jirn="",sc=1 for {
 	 set jirn=$order(^JIRA("issues",jirn)) quit:jirn=""
 	 set sc=##class(IssueUpdater).UpdateJiraIssueFromImportFile(jirn)
@@ -175,7 +193,9 @@ ClassMethod GetIssueData(jirn As %Integer) As %Library.List
  set propdata=$get(tData(jirn,"summary",1)),list=list_$lb("Summary;"_propdata)
  set list=list_$lb("Project;") // object valued property. Ref. will be set at point of update.
  set propdata=$get(tData(jirn,"project",1)),list=list_$lb("ProjectDesc;"_propdata)
- 
+ // Idkey fields -
+ set list=list_$lb("ProjectCode;"_$piece(jirn,"-",1))
+ set list=list_$lb("IssueNumber;"_$piece(jirn,"-",2))
  quit list
 }
 

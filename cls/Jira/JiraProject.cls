@@ -5,6 +5,8 @@ Property ProjectCode As %String [ Required ];
 
 Property Description As %String [ Required ];
 
+Relationship Issues As Issue [ Cardinality = children, Inverse = JiraProject ];
+
 Index ProjectCodeIndex On ProjectCode [ IdKey, PrimaryKey, Unique ];
 
 ClassMethod GetJiraProject(jirn As %String) As JiraProject

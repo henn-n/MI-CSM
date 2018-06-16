@@ -6,13 +6,44 @@ Class Jira.Issue Extends %Persistent
 Method %OnBeforeSave() As %Status [ Private, ServerOnly = 1 ]
 {
     // Calculate OpenDates
-    do ..OpenDates.Clear()
-    if '..OpenDates.Count()&&(..CreatedDate'="")&&(..ResolvedDate'="") {
-	    for date=(..CreatedDate-1):1:..ResolvedDate {
-		    do ..OpenDates.Insert(date)
+    //do ..OpenDates.Clear()
+    //if '..OpenDates.Count()&&(..CreatedDate'="")&&(..ResolvedDate'="") {
+	set enddate=..ResolvedDate
+	if enddate="" set enddate=+$H
+	if (..CreatedDate'="")&&(enddate'="") {
+	    for date=(..CreatedDate-1):1:enddate {
+		     //do ..OpenDates.Insert(date)
+	    	 if '(##class(OpenIssue).%ExistsId(date_"||"_..ProjectCode_"||"_..IssueNumber)) {
+	 			set newobj=##class(OpenIssue).%New()
+	 			if $isobject(newobj) {
+		 			set newobj.Date=date
+		 			set newobj.ProjectCode=..ProjectCode
+		 			set newobj.IssueNumber=..IssueNumber
+		 			set newobj.Assignee=..Assignee
+		 			set newobj.CreatedDate=..CreatedDate
+		 			set newobj.CreatedInJira=..CreatedInJira
+		 			set newobj.Reporter=..Reporter
+		 			set newobj.ResolvedDate=..ResolvedDate
+		 			set newobj.Resolution=..Resolution
+		 			set newobj.Status=..Status
+		 			set newobj.Summary=..Summary
+		 			set newobj.IssueType=..IssueType
+
+		 			// Update to Database
+ 					set sc=newobj.%Save()
+ 
+ 					if $$$ISERR(sc) {
+	 					do $system.Status.DecomposeStatus(%objlasterror,.err)
+	 					merge ^JIRA("errors",$increment(^JIRA("errors")))=err
+	 					merge ^JIRA("errors",^JIRA("errors"),"update_vals")=vals
+ 						}
+		 			}
+	 			}
 	    	}
 	    }
-	set ..DaysOpen=..OpenDates.Count()
+	if (..ResolvedDate'="") {
+		set ..DaysOpen=(..ResolvedDate)-(..CreatedDate)
+		}
 	quit 1
 }
 
@@ -31,7 +62,7 @@ ClassMethod GetOpenDates(jirn As %String) As %Library.ListOfDataTypes
 
 Property DaysOpen As %Integer;
 
-Property OpenDates As list Of %Date;
+// Property OpenDates As list Of %Date;
 
 Property Assignee As %String;
 
@@ -53,13 +84,15 @@ Property IssueType As %String;
 
 Property ProjectCode As %String;
 
-Property Project As JiraProject;
+// Property Project As JiraProject;
 
 // [ SqlComputeCode = {set {*} = ##class(JiraProject).GetJiraProject({IssueNumber})}, SqlComputed ];
 
 Property IssueNumber As %Integer [ Required ];
 
 Property LastUpdatedFromJira As %TimeStamp;
+
+// Relationship JiraProject As JiraProject [ Cardinality = parent, Inverse = Issues ];
 
 Index IssueKeyIndex On (ProjectCode, IssueNumber) [ IdKey, PrimaryKey, Unique ];
 

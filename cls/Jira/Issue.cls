@@ -5,9 +5,6 @@ Class Jira.Issue Extends %Persistent
 
 Method %OnBeforeSave() As %Status [ Private, ServerOnly = 1 ]
 {
-    // Calculate OpenDates
-    //do ..OpenDates.Clear()
-    //if '..OpenDates.Count()&&(..CreatedDate'="")&&(..ResolvedDate'="") {
 	set enddate=..ResolvedDate
 	if enddate="" set enddate=+$H
 	if (..CreatedDate'="")&&(enddate'="") {
